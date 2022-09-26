@@ -1,17 +1,14 @@
-import * as github from '@actions/github'
-import {Octokit} from '@octokit/rest'
+import {GitHub as Octokit, getOctokitOptions} from '@actions/github/lib/utils'
 import {getServerApiUrl} from './url-helper'
+
+import type {OctokitOptions} from '@octokit/core/dist-types/types'
 
 // Centralize all Octokit references by re-exporting
 export {Octokit} from '@octokit/rest'
-
-export type OctokitOptions = {
-  baseUrl?: string
-  userAgent?: string
-}
+export type {OctokitOptions} from '@octokit/core/dist-types/types'
 
 export function getOctokit(authToken: string, opts: OctokitOptions) {
-  const options: Octokit.Options = {
+  const options: OctokitOptions = {
     baseUrl: getServerApiUrl(opts.baseUrl)
   }
 
@@ -19,5 +16,5 @@ export function getOctokit(authToken: string, opts: OctokitOptions) {
     options.userAgent = opts.userAgent
   }
 
-  return new github.GitHub(authToken, options)
+  return new Octokit(getOctokitOptions(authToken, options))
 }

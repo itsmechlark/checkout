@@ -24,7 +24,7 @@ export async function getCheckoutInfo(
     throw new Error('Args ref and commit cannot both be empty')
   }
 
-  const result = ({} as unknown) as ICheckoutInfo
+  const result = {} as unknown as ICheckoutInfo
   const upperRef = (ref || '').toUpperCase()
 
   // SHA only
@@ -253,7 +253,10 @@ export async function checkCommitInfo(
           process.env['GITHUB_RUN_ID']
         };expected_head_sha=${expectedHeadSha};actual_head_sha=${actualHeadSha})`
       })
-      await octokit.repos.get({owner: repositoryOwner, repo: repositoryName})
+      await octokit.rest.repos.get({
+        owner: repositoryOwner,
+        repo: repositoryName
+      })
     }
   } catch (err) {
     core.debug(

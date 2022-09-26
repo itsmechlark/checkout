@@ -88,7 +88,7 @@ export async function getDefaultBranch(
     let result: string
     try {
       // Get the default branch from the repo info
-      const response = await octokit.repos.get({owner, repo})
+      const response = await octokit.rest.repos.get({owner, repo})
       result = response.data.default_branch
       assert.ok(result, 'default_branch cannot be empty')
     } catch (err) {
@@ -126,18 +126,19 @@ async function downloadArchive(
   baseUrl?: string
 ): Promise<Buffer> {
   const octokit = getOctokit(authToken, {baseUrl: baseUrl})
-  const params: Octokit.ReposGetArchiveLinkParams = {
+  const params = {
     owner: owner,
     repo: repo,
-    archive_format: IS_WINDOWS ? 'zipball' : 'tarball',
     ref: commit || ref
   }
-  const response = await octokit.repos.getArchiveLink(params)
-  if (response.status != 200) {
+  const response = await (IS_WINDOWS
+    ? octokit.rest.repos.downloadZipballArchive(params)
+    : octokit.rest.repos.downloadTarballArchive(params))
+  if (parseInt(response.status.toString()) != 200) {
     throw new Error(
       `Unexpected response from GitHub API. Status: ${response.status}, Data: ${response.data}`
     )
   }
 
-  return Buffer.from(response.data) // response.data is ArrayBuffer
+  return Buffer.from(response.data as string) // response.data is ArrayBuffer
 }
